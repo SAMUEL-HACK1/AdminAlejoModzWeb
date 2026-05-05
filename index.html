@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ADMIN PANEL | SamuelHackV1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --purple: #b000ff; 
+            --green: #00ff7f; 
+            --dark: #050505; 
+            --card-bg: rgba(20, 20, 20, 0.8);
+            --border-glow: rgba(176, 0, 255, 0.3);
+        }
+
+        * { margin:0; padding:0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--dark); color: #fff; font-family: 'Rajdhani', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        /* --- SPLASH SAMUEL HACK CREATOR RGB --- */
+        #splash-screen {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: #000; z-index: 30000; display: flex;
+            align-items: center; justify-content: center; transition: 1s;
+        }
+
+        .rgb-bg {
+            position: absolute; width: 200%; height: 200%;
+            background: linear-gradient(45deg, #ff0000, #ff00ff, #0000ff, #00ffff, #00ff00, #ffff00, #ff0000);
+            background-size: 400% 400%; animation: rgbMove 10s linear infinite; opacity: 0.15; filter: blur(80px);
+        }
+        @keyframes rgbMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .creator-title {
+            font-family: 'Orbitron'; font-size: 1.8rem; font-weight: 900; color: #fff;
+            letter-spacing: 5px; margin-bottom: 30px; text-shadow: 0 0 20px var(--purple);
+            animation: titleGlow 2s ease-in-out infinite; text-align: center;
+        }
+        @keyframes titleGlow { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 30px var(--green); } }
+
+        .loading-wrapper { display: flex; align-items: center; gap: 15px; justify-content: center; position: relative; z-index: 2; }
+        .modern-loader { width: 220px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        .loader-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--purple), var(--green)); box-shadow: 0 0 15px var(--green); animation: progressFill 3s forwards cubic-bezier(0.4, 0, 0.2, 1); }
+        .percent-text { font-family: 'Orbitron'; font-size: 1.2rem; color: var(--green); min-width: 60px; }
+        @keyframes progressFill { 0% { width: 0%; } 100% { width: 100%; } }
+
+        /* --- LOGIN CON PARTÍCULAS MEJORADAS --- */
+        #login-screen {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: #000; z-index: 20000; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* Contenedor de partículas con z-index correcto para que no tapen el input */
+        .particles-container { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 1; }
+        .particle { position: absolute; border-radius: 50%; opacity: 0.8; animation: moveUp var(--d) linear infinite; }
+        
+        @keyframes moveUp { 
+            0% { transform: translateY(110vh) scale(0); opacity: 0; } 
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } 
+        }
+
+        .login-card {
+            background: rgba(15, 15, 15, 0.95); padding: 30px; border-radius: 25px;
+            border: 1px solid var(--purple); box-shadow: 0 0 30px rgba(176, 0, 255, 0.2);
+            width: 90%; max-width: 380px; text-align: center; position: relative; z-index: 5;
+            backdrop-filter: blur(5px);
+        }
+
+        .key-container { margin-bottom: 20px; }
+        #admin-key { width: 100%; padding: 14px; background: rgba(0,0,0,0.6); border: 1px solid #333; color: #fff; border-radius: 12px; outline: none; text-align: center; font-family: 'Orbitron'; letter-spacing: 2px; }
+
+        /* --- CONTAINER PRINCIPAL --- */
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; padding-bottom: 50px; display: none; opacity: 0; transition: 1s; }
+        
+        .admin-header-pro { 
+            font-family: 'Orbitron'; font-size: 1.6rem; text-align: center; 
+            margin: 20px 0 30px 0; font-weight: 900; letter-spacing: 2px;
+            color: #fff; text-shadow: 0 0 15px var(--purple), 0 0 30px var(--purple);
+        }
+
+        .section { background: var(--card-bg); border: 1px solid var(--border-glow); padding: 22px; border-radius: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        h2 { font-family: 'Orbitron'; font-size: 0.85rem; color: var(--green); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.6); border: 1px solid #333; color: #fff; border-radius: 12px; margin-bottom: 15px; outline: none; }
+        .btn-add { width: 100%; padding: 16px; font-family: 'Orbitron'; font-weight: bold; background: linear-gradient(135deg, var(--purple), #7a00cc); color: white; border: none; border-radius: 14px; cursor: pointer; }
+        
+        .item-card { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .admin-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; margin-right: 12px; border: 1px solid var(--purple); }
+        .preview-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--purple); background: #111; }
+        .img-preview-container { width: 100%; height: 120px; border: 1px dashed var(--purple); border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(0,0,0,0.3); }
+        #preview-render { width: 100%; height: 100%; object-fit: contain; display: none; }
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <div class="rgb-bg"></div>
+    <div class="splash-content">
+        <h1 class="creator-title">SAMUEL HACK CREATOR</h1>
+        <div class="loading-wrapper">
+            <div class="modern-loader"><div class="loader-bar"></div></div>
+            <span class="percent-text" id="load-pc">0%</span>
+        </div>
+    </div>
+</div>
+
+<div id="login-screen">
+    <div class="particles-container" id="p-container"></div>
+    <div class="login-card">
+        <h2 style="color: var(--purple); font-size: 1.2rem; margin-bottom: 20px; font-family: 'Orbitron';">INICIO DE SESIÓN</h2>
+        <div class="key-container">
+            <input type="password" id="admin-key" placeholder="LLAVE MAESTRA">
+        </div>
+        <button class="btn-add" onclick="verifyAdmin()">ACCEDER AL NÚCLEO</button>
+    </div>
+</div>
+
+<div class="container" id="main-ui">
+    <h1 class="admin-header-pro">ADMINISTRADOR WEB PRO</h1>
+
+    <div class="section">
+        <h2>PERFIL</h2>
+        <center><img id="current-profile-img" class="preview-img" src="https://via.placeholder.com/180"></center><br>
+        <input type="file" id="profile-input" accept="image/*">
+        <button class="btn-add" onclick="uploadProfile()" style="margin-top:10px;">GUARDAR AVATAR</button>
+    </div>
+
+    <div class="section" style="text-align: center;">
+        <h2>ANÁLISIS</h2>
+        <b id="admin-view-count" style="font-size: 2.5rem; color: var(--green); font-family: 'Orbitron';">0</b>
+        <p style="font-size: 0.7rem; color: #555;">VISITAS TOTALES</p>
+    </div>
+
+    <div class="section">
+        <h2 id="form-title">DESPLEGAR MOD</h2>
+        <input type="hidden" id="edit-id" value="">
+        <div class="img-preview-container">
+            <img id="preview-render">
+            <span id="preview-placeholder">SIN IMAGEN</span>
+        </div>
+        <input type="file" id="item-img-input" accept="image/*" onchange="showPreview(this)">
+        <input type="text" id="item-name" placeholder="Nombre del Mod">
+        <input type="text" id="item-link" placeholder="Link de Descarga">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" id="item-peso" placeholder="Peso">
+            <input type="text" id="item-vers" placeholder="Versión">
+        </div>
+        <button class="btn-add" id="btn-save" onclick="uploadCard()">PUBLICAR / ACTUALIZAR</button>
+        <button id="btn-cancel-edit" style="display:none; width:100%; margin-top:10px; background:#222; color:#fff; border:none; padding:10px; border-radius:10px;" onclick="location.reload()">CANCELAR</button>
+    </div>
+
+    <div class="section">
+        <h2>BASE DE DATOS</h2>
+        <div id="admin-cards-list"></div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD4vcFQgUN4VFdYpvvfLRU3aOOmqHe2BBM",
+        authDomain: "alejomodzweb.firebaseapp.com",
+        databaseURL: "https://alejomodzweb-default-rtdb.firebaseio.com",
+        projectId: "alejomodzweb",
+        storageBucket: "alejomodzweb.firebasestorage.app",
+        messagingSenderId: "204566201399",
+        appId: "1:204566201399:web:21937da0115d7ba83d2bb2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // --- GENERADOR DE PARTÍCULAS MEJORADO ---
+    const pContainer = document.getElementById('p-container');
+    function createParticles() {
+        for(let i=0; i<50; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 4 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            // Colores SamuelHack (Morado y Verde)
+            p.style.background = Math.random() > 0.5 ? '#b000ff' : '#00ff7f';
+            p.style.boxShadow = `0 0 10px ${p.style.background}`;
+            p.style.setProperty('--d', (Math.random() * 4 + 3) + 's');
+            p.style.animationDelay = (Math.random() * 5) + 's';
+            pContainer.appendChild(p);
+        }
+    }
+    createParticles();
+
+    // Splash y Contador
+    let count = 0;
+    const counterInt = setInterval(() => {
+        count++;
+        document.getElementById('load-pc').innerText = count + "%";
+        if(count >= 100) clearInterval(counterInt);
+    }, 25);
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('splash-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+            }, 1000);
+        }, 3000);
+    };
+
+    // SEGURIDAD
+    window.verifyAdmin = async () => {
+        const key = document.getElementById('admin-key').value;
+        const snapKey = await get(ref(db, 'admin/master_key'));
+        const snapIP = await get(ref(db, 'admin/allowed_ip'));
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        const currentIP = ipData.ip;
+
+        if(key === snapKey.val()) {
+            if(snapIP.val() === "PENDIENTE" || snapIP.val() === currentIP) {
+                await set(ref(db, 'admin/allowed_ip'), currentIP);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-ui').style.display = 'block';
+                setTimeout(() => document.getElementById('main-ui').style.opacity = '1', 50);
+            } else { alert("IP NO AUTORIZADA"); }
+        } else { alert("LLAVE INVÁLIDA"); }
+    };
+
+    // MODS LOGIC (ORIGINAL)
+    const toBase64 = f => new Promise((r,j)=>{const rd=new FileReader();rd.readAsDataURL(f);rd.onload=()=>r(rd.result);});
+
+    window.showPreview = (input) => {
+        if (input.files && input.files[0]) {
+            const rd = new FileReader();
+            rd.onload = e => {
+                document.getElementById('preview-render').src = e.target.result;
+                document.getElementById('preview-render').style.display = 'block';
+                document.getElementById('preview-placeholder').style.display = 'none';
+            };
+            rd.readAsDataURL(input.files[0]);
+        }
+    };
+
+    window.uploadCard = async () => {
+        const editId = document.getElementById('edit-id').value;
+        const imgFile = document.getElementById('item-img-input').files[0];
+        const data = {
+            nombre: document.getElementById('item-name').value,
+            link: document.getElementById('item-link').value,
+            peso: document.getElementById('item-peso').value,
+            version: document.getElementById('item-vers').value
+        };
+        if(imgFile) data.imgBase64 = await toBase64(imgFile);
+
+        if(editId) update(ref(db, 'descargas/'+editId), data).then(()=>location.reload());
+        else push(ref(db, 'descargas'), data).then(()=>location.reload());
+    };
+
+    onValue(ref(db, 'descargas'), (snap) => {
+        const list = document.getElementById('admin-cards-list');
+        list.innerHTML = "";
+        const items = snap.val();
+        for(let id in items) {
+            list.innerHTML += `
+                <div class="item-card">
+                    <div style="display:flex; align-items:center;">
+                        <img src="${items[id].imgBase64}" class="admin-thumb">
+                        <div><b>${items[id].nombre}</b><br><small>${items[id].peso}</small></div>
+                    </div>
+                    <div>
+                        <button class="btn-add" style="width:auto; padding:5px 10px; font-size:10px; background:var(--green);" onclick="startEdit('${id}', '${btoa(JSON.stringify(items[id]))}')">EDIT</button>
+                        <button class="btn-add" style="width:auto; padding:5px 10px; font-size:10px; background:red;" onclick="deleteItem('${id}')">X</button>
+                    </div>
+                </div>`;
+        }
+    });
+
+    window.startEdit = (id, encoded) => {
+        const data = JSON.parse(atob(encoded));
+        document.getElementById('edit-id').value = id;
+        document.getElementById('item-name').value = data.nombre;
+        document.getElementById('item-link').value = data.link;
+        document.getElementById('item-peso').value = data.peso;
+        document.getElementById('item-vers').value = data.version;
+        document.getElementById('preview-render').src = data.imgBase64;
+        document.getElementById('preview-render').style.display = 'block';
+        document.getElementById('preview-placeholder').style.display = 'none';
+        window.scrollTo(0,0);
+    };
+
+    window.deleteItem = id => { if(confirm("¿Eliminar?")) remove(ref(db, 'descargas/'+id)); };
+    window.uploadProfile = async () => {
+        const f = document.getElementById('profile-input').files[0];
+        if(f) set(ref(db, 'config/perfil'), await toBase64(f)).then(()=>location.reload());
+    };
+    onValue(ref(db, 'config/perfil'), s => { if(s.exists()) document.getElementById('current-profile-img').src = s.val(); });
+    onValue(ref(db, 'stats/total_views'), s => { document.getElementById('admin-view-count').innerText = s.val() || 0; });
+</script>
+</body>
+</html>
