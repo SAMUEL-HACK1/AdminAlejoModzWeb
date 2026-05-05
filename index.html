@@ -55,7 +55,6 @@
             flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* Contenedor de partículas con z-index correcto para que no tapen el input */
         .particles-container { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; z-index: 1; }
         .particle { position: absolute; border-radius: 50%; opacity: 0.8; animation: moveUp var(--d) linear infinite; }
         
@@ -95,6 +94,11 @@
         .preview-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--purple); background: #111; }
         .img-preview-container { width: 100%; height: 120px; border: 1px dashed var(--purple); border-radius: 12px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: rgba(0,0,0,0.3); }
         #preview-render { width: 100%; height: 100%; object-fit: contain; display: none; }
+        
+        /* Estilos Base de Datos */
+        .db-info { flex: 1; margin-left: 10px; }
+        .db-info b { font-size: 0.9rem; color: #fff; display: block; }
+        .db-info small { color: var(--green); font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -125,46 +129,54 @@
     <h1 class="admin-header-pro">ADMINISTRADOR WEB PRO</h1>
 
     <div class="section">
-        <h2>PERFIL</h2>
-        <center><img id="current-profile-img" class="preview-img" src="https://via.placeholder.com/180"></center><br>
+        <h2>PERFIL DEL CREADOR</h2>
+        <center>
+            <div style="position: relative; width: 100px;">
+                <img id="current-profile-img" class="preview-img" src="https://via.placeholder.com/180">
+            </div>
+        </center><br>
         <input type="file" id="profile-input" accept="image/*">
-        <button class="btn-add" onclick="uploadProfile()" style="margin-top:10px;">GUARDAR AVATAR</button>
+        <button class="btn-add" onclick="uploadProfile()" style="margin-top:10px;">ACTUALIZAR AVATAR</button>
     </div>
 
-    <div class="section" style="text-align: center;">
-        <h2>ANÁLISIS</h2>
-        <b id="admin-view-count" style="font-size: 2.5rem; color: var(--green); font-family: 'Orbitron';">0</b>
-        <p style="font-size: 0.7rem; color: #555;">VISITAS TOTALES</p>
+    <div class="section" style="text-align: center; border-color: var(--green);">
+        <h2>MONITOREO DE RED</h2>
+        <b id="admin-view-count" style="font-size: 3rem; color: var(--green); font-family: 'Orbitron'; text-shadow: 0 0 20px var(--green);">0</b>
+        <p style="font-size: 0.8rem; color: #aaa; letter-spacing: 2px;">VISITAS TOTALES EN VIVO</p>
     </div>
 
     <div class="section">
-        <h2 id="form-title">DESPLEGAR MOD</h2>
+        <h2 id="form-title">DESPLEGAR NUEVO MOD</h2>
         <input type="hidden" id="edit-id" value="">
         <div class="img-preview-container">
             <img id="preview-render">
-            <span id="preview-placeholder">SIN IMAGEN</span>
+            <span id="preview-placeholder">IMAGEN DEL PROYECTO</span>
         </div>
         <input type="file" id="item-img-input" accept="image/*" onchange="showPreview(this)">
-        <input type="text" id="item-name" placeholder="Nombre del Mod">
-        <input type="text" id="item-link" placeholder="Link de Descarga">
+        <input type="text" id="item-name" placeholder="Nombre del Mod / App">
+        <input type="text" id="item-link" placeholder="Enlace Directo de Descarga">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="text" id="item-peso" placeholder="Peso">
-            <input type="text" id="item-vers" placeholder="Versión">
+            <input type="text" id="item-peso" placeholder="Peso (ej: 15MB)">
+            <input type="text" id="item-vers" placeholder="Versión (ej: v1.0)">
         </div>
-        <button class="btn-add" id="btn-save" onclick="uploadCard()">PUBLICAR / ACTUALIZAR</button>
-        <button id="btn-cancel-edit" style="display:none; width:100%; margin-top:10px; background:#222; color:#fff; border:none; padding:10px; border-radius:10px;" onclick="location.reload()">CANCELAR</button>
+        <button class="btn-add" id="btn-save" onclick="uploadCard()">PUBLICAR CAMBIOS</button>
+        <button id="btn-cancel-edit" style="display:none; width:100%; margin-top:10px; background:#333; color:#fff; border:none; padding:12px; border-radius:14px; font-family: 'Orbitron';" onclick="location.reload()">CANCELAR EDICIÓN</button>
     </div>
 
     <div class="section">
-        <h2>BASE DE DATOS</h2>
-        <div id="admin-cards-list"></div>
+        <h2>BASE DE DATOS DE ARCHIVOS</h2>
+        <div id="admin-cards-list">
+            <p style="text-align:center; color:#444;">Sincronizando con Firebase...</p>
+        </div>
     </div>
 </div>
 
 <script type="module">
+    // IMPORTACIÓN DE MÓDULOS FIREBASE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, push, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+    // CONFIGURACIÓN DE TU PROYECTO
     const firebaseConfig = {
         apiKey: "AIzaSyD4vcFQgUN4VFdYpvvfLRU3aOOmqHe2BBM",
         authDomain: "alejomodzweb.firebaseapp.com",
@@ -178,72 +190,92 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // --- GENERADOR DE PARTÍCULAS MEJORADO ---
+    // --- SISTEMA DE PARTÍCULAS ANIMADAS ---
     const pContainer = document.getElementById('p-container');
     function createParticles() {
-        for(let i=0; i<50; i++) {
+        for(let i=0; i<60; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             const size = Math.random() * 4 + 2;
             p.style.width = size + 'px';
             p.style.height = size + 'px';
             p.style.left = Math.random() * 100 + 'vw';
-            // Colores SamuelHack (Morado y Verde)
             p.style.background = Math.random() > 0.5 ? '#b000ff' : '#00ff7f';
             p.style.boxShadow = `0 0 10px ${p.style.background}`;
-            p.style.setProperty('--d', (Math.random() * 4 + 3) + 's');
+            p.style.setProperty('--d', (Math.random() * 5 + 3) + 's');
             p.style.animationDelay = (Math.random() * 5) + 's';
             pContainer.appendChild(p);
         }
     }
     createParticles();
 
-    // Splash y Contador
+    // --- LÓGICA DEL SPLASH SCREEN ---
     let count = 0;
     const counterInt = setInterval(() => {
         count++;
         document.getElementById('load-pc').innerText = count + "%";
-        if(count >= 100) clearInterval(counterInt);
-    }, 25);
+        if(count >= 100) {
+            clearInterval(counterInt);
+        }
+    }, 20);
 
     window.onload = () => {
         setTimeout(() => {
-            document.getElementById('splash-screen').style.opacity = '0';
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
+                splash.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'flex';
             }, 1000);
-        }, 3000);
+        }, 2800);
     };
 
-    // SEGURIDAD
+    // --- SISTEMA DE SEGURIDAD CORREGIDO PARA TU AMIGO ---
     window.verifyAdmin = async () => {
-        const key = document.getElementById('admin-key').value;
-        const snapKey = await get(ref(db, 'admin/master_key'));
-        const snapIP = await get(ref(db, 'admin/allowed_ip'));
-        const ipRes = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipRes.json();
-        const currentIP = ipData.ip;
+        const inputKey = document.getElementById('admin-key').value;
+        if(!inputKey) return alert("INGRESA LA LLAVE");
 
-        if(key === snapKey.val()) {
-            if(snapIP.val() === "PENDIENTE" || snapIP.val() === currentIP) {
+        try {
+            const snapKey = await get(ref(db, 'admin/master_key'));
+            const masterKey = snapKey.val();
+
+            // Si la key coincide, entramos sin importar la IP previa
+            if(inputKey === masterKey) {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const currentIP = ipData.ip;
+
+                // Actualizamos la IP autorizada a la de la persona que acaba de entrar
                 await set(ref(db, 'admin/allowed_ip'), currentIP);
+
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-ui').style.display = 'block';
-                setTimeout(() => document.getElementById('main-ui').style.opacity = '1', 50);
-            } else { alert("IP NO AUTORIZADA"); }
-        } else { alert("LLAVE INVÁLIDA"); }
+                const mainUI = document.getElementById('main-ui');
+                mainUI.style.display = 'block';
+                setTimeout(() => mainUI.style.opacity = '1', 50);
+            } else {
+                alert("ACCESO DENEGADO: LLAVE INCORRECTA");
+            }
+        } catch (err) {
+            alert("ERROR DE CONEXIÓN CON EL NÚCLEO");
+            console.error(err);
+        }
     };
 
-    // MODS LOGIC (ORIGINAL)
-    const toBase64 = f => new Promise((r,j)=>{const rd=new FileReader();rd.readAsDataURL(f);rd.onload=()=>r(rd.result);});
+    // --- GESTIÓN DE ARCHIVOS Y MODS ---
+    const toBase64 = f => new Promise((r,j)=>{
+        const rd = new FileReader();
+        rd.readAsDataURL(f);
+        rd.onload = () => r(rd.result);
+        rd.onerror = e => j(e);
+    });
 
     window.showPreview = (input) => {
         if (input.files && input.files[0]) {
             const rd = new FileReader();
             rd.onload = e => {
-                document.getElementById('preview-render').src = e.target.result;
-                document.getElementById('preview-render').style.display = 'block';
+                const render = document.getElementById('preview-render');
+                render.src = e.target.result;
+                render.style.display = 'block';
                 document.getElementById('preview-placeholder').style.display = 'none';
             };
             rd.readAsDataURL(input.files[0]);
@@ -253,32 +285,56 @@
     window.uploadCard = async () => {
         const editId = document.getElementById('edit-id').value;
         const imgFile = document.getElementById('item-img-input').files[0];
+        
         const data = {
             nombre: document.getElementById('item-name').value,
             link: document.getElementById('item-link').value,
             peso: document.getElementById('item-peso').value,
-            version: document.getElementById('item-vers').value
+            version: document.getElementById('item-vers').value,
+            timestamp: Date.now()
         };
-        if(imgFile) data.imgBase64 = await toBase64(imgFile);
 
-        if(editId) update(ref(db, 'descargas/'+editId), data).then(()=>location.reload());
-        else push(ref(db, 'descargas'), data).then(()=>location.reload());
+        if(!data.nombre || !data.link) return alert("RELLENA LOS CAMPOS");
+
+        if(imgFile) {
+            data.imgBase64 = await toBase64(imgFile);
+        } else if (editId) {
+            // Si editamos y no hay foto nueva, mantenemos la anterior
+            const currentSnap = await get(ref(db, 'descargas/' + editId));
+            data.imgBase64 = currentSnap.val().imgBase64;
+        }
+
+        if(editId) {
+            update(ref(db, 'descargas/' + editId), data).then(() => location.reload());
+        } else {
+            push(ref(db, 'descargas'), data).then(() => location.reload());
+        }
     };
 
+    // --- RENDERIZADO DE LA BASE DE DATOS ---
     onValue(ref(db, 'descargas'), (snap) => {
         const list = document.getElementById('admin-cards-list');
         list.innerHTML = "";
+        if(!snap.exists()) {
+            list.innerHTML = "<p style='text-align:center; color:#555;'>No hay mods publicados.</p>";
+            return;
+        }
+        
         const items = snap.val();
         for(let id in items) {
+            const item = items[id];
             list.innerHTML += `
                 <div class="item-card">
                     <div style="display:flex; align-items:center;">
-                        <img src="${items[id].imgBase64}" class="admin-thumb">
-                        <div><b>${items[id].nombre}</b><br><small>${items[id].peso}</small></div>
+                        <img src="${item.imgBase64 || 'https://via.placeholder.com/50'}" class="admin-thumb">
+                        <div class="db-info">
+                            <b>${item.nombre}</b>
+                            <small>${item.peso} | ${item.version}</small>
+                        </div>
                     </div>
-                    <div>
-                        <button class="btn-add" style="width:auto; padding:5px 10px; font-size:10px; background:var(--green);" onclick="startEdit('${id}', '${btoa(JSON.stringify(items[id]))}')">EDIT</button>
-                        <button class="btn-add" style="width:auto; padding:5px 10px; font-size:10px; background:red;" onclick="deleteItem('${id}')">X</button>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-add" style="width:auto; padding:8px 12px; font-size:11px; background:var(--green); color:#000;" onclick="startEdit('${id}', '${btoa(JSON.stringify(item))}')">EDIT</button>
+                        <button class="btn-add" style="width:auto; padding:8px 12px; font-size:11px; background:#ff4444;" onclick="deleteItem('${id}')">X</button>
                     </div>
                 </div>`;
         }
@@ -291,19 +347,43 @@
         document.getElementById('item-link').value = data.link;
         document.getElementById('item-peso').value = data.peso;
         document.getElementById('item-vers').value = data.version;
-        document.getElementById('preview-render').src = data.imgBase64;
-        document.getElementById('preview-render').style.display = 'block';
-        document.getElementById('preview-placeholder').style.display = 'none';
-        window.scrollTo(0,0);
+        
+        if(data.imgBase64) {
+            const render = document.getElementById('preview-render');
+            render.src = data.imgBase64;
+            render.style.display = 'block';
+            document.getElementById('preview-placeholder').style.display = 'none';
+        }
+        
+        document.getElementById('form-title').innerText = "EDITANDO PROYECTO";
+        document.getElementById('btn-cancel-edit').style.display = 'block';
+        window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    window.deleteItem = id => { if(confirm("¿Eliminar?")) remove(ref(db, 'descargas/'+id)); };
+    window.deleteItem = id => {
+        if(confirm("¿ELIMINAR ESTE ARCHIVO DE LA BASE DE DATOS?")) {
+            remove(ref(db, 'descargas/' + id));
+        }
+    };
+
+    // --- GESTIÓN DE PERFIL ---
     window.uploadProfile = async () => {
         const f = document.getElementById('profile-input').files[0];
-        if(f) set(ref(db, 'config/perfil'), await toBase64(f)).then(()=>location.reload());
+        if(!f) return alert("SELECCIONA UNA IMAGEN");
+        const base64 = await toBase64(f);
+        set(ref(db, 'config/perfil'), base64).then(() => {
+            alert("AVATAR ACTUALIZADO");
+            location.reload();
+        });
     };
-    onValue(ref(db, 'config/perfil'), s => { if(s.exists()) document.getElementById('current-profile-img').src = s.val(); });
-    onValue(ref(db, 'stats/total_views'), s => { document.getElementById('admin-view-count').innerText = s.val() || 0; });
+
+    onValue(ref(db, 'config/perfil'), s => {
+        if(s.exists()) document.getElementById('current-profile-img').src = s.val();
+    });
+
+    onValue(ref(db, 'stats/total_views'), s => {
+        document.getElementById('admin-view-count').innerText = s.val() || 0;
+    });
 </script>
 </body>
 </html>
